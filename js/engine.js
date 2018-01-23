@@ -23,7 +23,6 @@ var Engine = (function(global) {
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
-
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
@@ -79,7 +78,6 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        checkCollisions();
     }
 
     /* This is called by the update function and loops through all of the
@@ -95,24 +93,6 @@ var Engine = (function(global) {
         });
         player.update();
     };
-
-    function checkCollisions() {
-        allEnemies.forEach( function(enemy) {
-            var xPosFloor = Math.floor(enemy.position.x);
-            var xPosCeil = Math.ceil(enemy.position.x);
-            var yPosFloor = Math.floor(enemy.position.y);
-            var yPosCeil = Math.ceil(enemy.position.y);
-            if(
-                (xPosFloor === player.position.x || player.position.x===xPosCeil)
-                && (yPosFloor === player.position.y || player.position.y === yPosCeil)
-            ) {
-                player.position.x = 2;
-                player.position.y = 5;
-                player.update();
-            }
-        });
-    }
-
     /* This function initially draws the "game level", it will then call
      * the renderEntities function. Remember, this function is called every
      * game tick (or loop of the game engine) because that's how games work -

@@ -1,3 +1,12 @@
+var numRows = 6;
+var numCols = 5;
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
 var Position = function(x, y) {
     this.x = x;
     this.y = y;
@@ -11,15 +20,12 @@ var LiveObject = function(x,y) {
 LiveObject.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.position.x * 101, this.position.y *83);
 }
-// Enemies our player must avoid
-var Enemy = function(x,y) {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
 
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
-    LiveObject.call(this, x, y);
+var Enemy = function(y, velocity) {
+    var initX = -1;
+    LiveObject.call(this, initX, y);
     this.sprite = 'images/enemy-bug.png';
+    this.velocity = velocity;
 };
 
 Enemy.prototype = Object.create(LiveObject.prototype);
@@ -27,18 +33,32 @@ Enemy.prototype.constructor = Enemy;
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
-    //console.log('move or shut');
-    var random = Math.floor(Math.random() * 2);
-    this.position.x = this.position.x + 1 * dt;
+    this.position.x = this.position.x + this.velocity * dt;
+    var middleX = Math.floor(numCols/2)
+    // collision
+    var xPosFloor = Math.floor(this.position.x);
+    var xPosCeil = Math.ceil(this.position.x);
+    var yPosFloor = Math.floor(this.position.y);
+    var yPosCeil = Math.ceil(this.position.y);
+    if(
+        (xPosFloor === player.position.x || player.position.x===xPosCeil)
+        && (yPosFloor === player.position.y || player.position.y === yPosCeil)
+    ) {
+        player.position.x = middleX;
+        player.position.y = numRows - 1;
+        player.update();
+    }
+
+    if(xPosFloor === numRows){
+        var randomVel = getRandomInt(2,10);
+        var randomY = getRandomInt(1, numRows - 1);
+        this.position.x = -1;
+        this.position.y = randomY;
+        this.velocity = randomVel;
+    }
     this.render();
 };
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
 var Player = function(x,y) {
     LiveObject.call(this, x, y);
     this.sprite = 'images/char-horn-girl.png';
@@ -50,7 +70,9 @@ Player.prototype.constructor = Player;
 Player.prototype.update = function(action){
     // body...
     this.render();
-    //console.log('move, win, or die');
+    if (this.position.y == 0) {
+        alert("Win!!!");
+    }
 };
 
 Player.prototype.handleInput = function(action) {
@@ -60,7 +82,7 @@ Player.prototype.handleInput = function(action) {
             if (position.x > 0) {
                 this.position.x -=1;
             } else {
-                this.position.x = 4;
+                this.position.x = numCols;
             }
             break;
         case 'up':
@@ -69,14 +91,14 @@ Player.prototype.handleInput = function(action) {
             }
             break;
         case 'right':
-            if (position.x < 4) {
+            if (position.x < numCols - 1) {
                 this.position.x += 1;
             } else {
                 this.position.x = 0;
             }
             break;
         case 'down':
-            if(position.y < 5) {
+            if(position.y < numRows - 1) {
                 this.position.y +=1;
             }
             break;
@@ -86,21 +108,23 @@ Player.prototype.handleInput = function(action) {
     }
     this.update();
 }
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable pe player
-var allEnemies = [ new Enemy(0,0), new Enemy(2,3), new Enemy(2,4)]
+
+var numEnemies = 4;
+var allEnemies = [];
+for (var i = 0; i < numEnemies; i++) {
+    var randomVel = getRandomInt(1, 10);
+    var randomY = getRandomInt(1, numRows - 1);
+    allEnemies.push(new Enemy(randomY, randomVel));
+}
+
 var player = new Player(2,5);
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
         38: 'up',
         39: 'right',
         40: 'down'
-    };
-
+    }
     player.handleInput(allowedKeys[e.keyCode]);
 });
