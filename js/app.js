@@ -21,10 +21,10 @@ LiveObject.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.position.x * 101, this.position.y *83);
 }
 
-var Enemy = function(y, velocity) {
+var Enemy = function(y, velocity, sprite) {
     var initX = -1;
     LiveObject.call(this, initX, y);
-    this.sprite = 'images/enemy-bug.png';
+    this.sprite = sprite;
     this.velocity = velocity;
 };
 
@@ -61,7 +61,7 @@ Enemy.prototype.update = function(dt) {
 
 var Player = function(x,y) {
     LiveObject.call(this, x, y);
-    this.sprite = 'images/char-horn-girl.png';
+    this.sprite = 'images/battleship.png';
 }
 
 Player.prototype = Object.create(LiveObject.prototype);
@@ -112,9 +112,10 @@ Player.prototype.handleInput = function(action) {
 var numEnemies = 4;
 var allEnemies = [];
 for (var i = 0; i < numEnemies; i++) {
+    var sprite = 'images/shaded.png';
     var randomVel = getRandomInt(1, 10);
     var randomY = getRandomInt(1, numRows - 1);
-    allEnemies.push(new Enemy(randomY, randomVel));
+    allEnemies.push(new Enemy(randomY, randomVel, sprite));
 }
 
 var player = new Player(2,5);
